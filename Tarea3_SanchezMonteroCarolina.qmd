@@ -3,15 +3,11 @@ title: "Tarea3_SanchezMonteroCarolina"
 format: html
 ---
 
-```{r}
-#| echo: FALSE
-
-cat("========================== Hoja de respuestas ===========================")
-```
-
+## 0. Hoja de respuestas
 
 ```{r}
 #| echo: FALSE
+#| include: FALSE
 
 source("cod/funciones_tarea3.R")
 
@@ -22,6 +18,7 @@ parametros <- read.csv2("config/parametros_tarea3.csv")
 
 ```{r}
 #| echo: FALSE
+#| include: FALSE
 
 
 # estraemos parametros del csv "parametros_tarea3.csv"
@@ -38,13 +35,14 @@ k.alerta <- parametros |>
 
 ```{r}
 #| echo: FALSE
+#| include: FALSE
 
 resultado <- alerta.movil(datos, ventana, k.alerta)
 
 A <- resultado |>
   dplyr::filter(alerta == TRUE) |>
   dplyr::summarise(
-    cantidad = dplyr::n(),
+    cantidad = dplyr::n()
   ) |>
   dplyr::pull(cantidad)
 
@@ -72,7 +70,46 @@ cat("RESULTADO_1B =", B, "\n")
 cat("RESULTADO_1C =", C, "\n")
 ```
 
+## 1. Ejercicio 1: Alertas por ventana móvil
 
+### Gráfico de alertas
+
+```{r}
+#| echo: false
+#| warning: false
+#| message: false
+
+library(ggplot2)
+
+grafico.alertas <- ggplot(resultado, aes(x = as.Date(fecha), y = n.tx)) +
+  geom_line(color = "steelblue", linewidth = 0.6) +
+  geom_point(
+    data = dplyr::filter(resultado, alerta %in% TRUE),
+    color = "red",
+    size = 2
+  ) +
+  labs(
+    title = "Transacciones diarias y alertas durante 2025",
+    subtitle = "Alertas identificadas mediante una ventana móvil",
+    x = "Fecha",
+    y = "Número de transacciones",
+    caption = "Los puntos rojos representan los días con alerta."
+  ) +
+  theme_minimal()
+
+print(grafico.alertas)
+
+dir.create("info/figuras", recursive = TRUE, showWarnings = FALSE)
+
+ggsave(
+  filename = "info/figuras/ej1.alertas.png",
+  plot = grafico.alertas,
+  width = 10,
+  height = 5,
+  dpi = 300
+)
+
+```
 
 
 
