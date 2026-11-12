@@ -3,5 +3,81 @@ title: "Tarea3_SanchezMonteroCarolina"
 format: html
 ---
 
+```{r}
+#| echo: FALSE
+
+cat("========================== Hoja de respuestas ===========================")
+```
+
+
+```{r}
+#| echo: FALSE
+
+source("cod/funciones_tarea3.R")
+
+datos <- read.csv2("data/transacciones_2025.csv")
+
+parametros <- read.csv2("config/parametros_tarea3.csv")
+```
+
+```{r}
+#| echo: FALSE
+
+
+# estraemos parametros del csv "parametros_tarea3.csv"
+ventana <- parametros |>
+  dplyr::filter(parametro == "ventana") |>
+  dplyr::pull(valor) |>
+  as.numeric()
+
+k.alerta <- parametros |>
+  dplyr::filter(parametro == "k.alerta") |>
+  dplyr::pull(valor) |>
+  as.numeric()
+```
+
+```{r}
+#| echo: FALSE
+
+resultado <- alerta.movil(datos, ventana, k.alerta)
+
+A <- resultado |>
+  dplyr::filter(alerta == TRUE) |>
+  dplyr::summarise(
+    cantidad = dplyr::n(),
+  ) |>
+  dplyr::pull(cantidad)
+
+B <- resultado |>
+  dplyr::filter(alerta == TRUE) |>
+  dplyr::slice(1) |>
+  dplyr::pull(fecha)
+
+dato.modif <- alerta.movil(datos, 7, 2) 
+
+C <- dato.modif |>
+  dplyr::filter(alerta == TRUE) |>
+  dplyr::summarise(
+    cantidad = dplyr::n()
+  ) |>
+  dplyr::pull(cantidad)
+
+```
+
+```{r}
+#| echo: FALSE
+
+cat("RESULTADO_1A =", A, "\n")
+cat("RESULTADO_1B =", B, "\n")
+cat("RESULTADO_1C =", C, "\n")
+```
+
+
+
+
+
+
+
+
 
 
