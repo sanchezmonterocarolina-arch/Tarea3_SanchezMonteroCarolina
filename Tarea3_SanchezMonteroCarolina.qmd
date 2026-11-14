@@ -5,6 +5,10 @@ format:
     embed-resources: true
 ---
 
+## Repositorio
+
+[Ver repositorio de la Tarea 3](https://github.com/sanchezmonterocarolina-arch/Tarea3_SanchezMonteroCarolina)
+
 ## 0. Hoja de respuestas
 
 ```{r}
