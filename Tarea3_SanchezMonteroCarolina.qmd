@@ -14,6 +14,8 @@ source("cod/funciones_tarea3.R")
 datos <- read.csv2("data/transacciones_2025.csv")
 
 parametros <- read.csv2("config/parametros_tarea3.csv")
+
+cantones <- read.csv("data/cantones.csv")
 ```
 
 ```{r}
@@ -64,11 +66,54 @@ C <- dato.modif |>
 
 ```{r}
 #| echo: FALSE
+#| include: FALSE
+
+canal.benford <- parametros$valor[
+  parametros$parametro == "canal.benford"
+]
+
+# Inciso A
+datos.benford <- datos |>
+  dplyr::filter(tolower(.data$canal) == tolower(canal.benford))
+
+resultado.2a <- benford.mad(datos.benford$monto_crc)
+
+# Inciso B
+tabla.benford <- benford.canton(datos, canal.benford, cantones)
+
+resultado.2b <- tabla.benford$canton[1]
+
+# Inciso C
+
+resultado.2c <- tabla.benford |>
+  dplyr::filter(mad > 0.015) |>
+  nrow()
+
+# Inciso D
+tabla.web <- benford.canton(datos, "Web", cantones) 
+
+resultado.2d <- tabla.web$canton[1]
+
+```
+
+
+
+
+```{r}
+#| echo: FALSE
 
 cat("RESULTADO_1A =", A, "\n")
 cat("RESULTADO_1B =", B, "\n")
 cat("RESULTADO_1C =", C, "\n")
+cat("RESULTADO_2A =", sprintf("%.4f", resultado.2a), "\n")
+cat("RESULTADO_2B =", resultado.2b, "\n")
+cat("RESULTADO_2C =", resultado.2c, "\n")
+cat("RESULTADO_2D =", resultado.2d, "\n")
+
 ```
+
+
+
 
 ## 1. Ejercicio 1: Alertas por ventana móvil
 
@@ -111,10 +156,95 @@ ggsave(
 
 ```
 
+## 2. Ejercicio 2: Ley de Benford por Cantón
+
+### Gráfico de la distrubición de los primeros dígitos
+
+```{r}
+#| label: fig-ej2-benford
+#| echo: false
+#| warning: false
+#| message: false
 
 
+# Seleccionamos los montos válidos del canal
+montos.benford <- datos.benford$monto_crc
+montos.benford <- montos.benford[
+  is.finite(montos.benford) & montos.benford > 0
+]
+
+# Calculamos los primeros dígitos
+digitos <- floor(
+  montos.benford / 10^floor(log10(montos.benford))
+)
+
+# Proporciones observadas
+frecuencia <- table(factor(digitos, levels = 1:9))
+p.d <- as.numeric(frecuencia) / length(digitos)
+
+# Proporciones teóricas de Benford
+d <- 1:9
+B.d <- log10(1 + 1/d)
+
+# Tabla para el gráfico
+tabla.grafico <- data.frame(
+  digito = d,
+  observada = p.d,
+  benford = B.d
+)
+
+# Construcción del gráfico
+grafico.benford <- ggplot(tabla.grafico, aes(x = digito)) +
+  geom_col(aes(y = observada, fill = "Observada"),
+           width = 0.7) +
+  geom_line(aes(y = benford, color = "Benford"),
+            linewidth = 1, group = 1) +
+  geom_point(aes(y = benford, color = "Benford"),
+             size = 2) +
+  scale_x_continuous(breaks = 1:9) +
+  scale_fill_manual(values = c("Observada" = "steelblue")) +
+  scale_color_manual(values = c("Benford" = "red")) +
+  labs(
+    title = "Distribución de primeros dígitos",
+    subtitle = paste("Canal:", canal.benford),
+    x = "Primer dígito",
+    y = "Proporción",
+    fill = "Distribución",
+    color = "Distribución"
+  ) +
+  theme_minimal()
+
+print(grafico.benford)
+
+# Guardamos el gráfico
+dir.create("info/figuras", recursive = TRUE,
+           showWarnings = FALSE)
+
+ggsave(
+  filename = "info/figuras/ej2.benford.png",
+  plot = grafico.benford,
+  width = 10,
+  height = 5,
+  dpi = 300
+)
+```
+
+```{r}
+#| echo: FALSE
+
+tabla1 <- tabla.benford |>
+  dplyr::select(canton, n, mad, clase) |>
+  head(6)
+
+knitr::kable(tabla1,
+             digits = 4,
+             caption = "Cantones con mayor MAD"
+             )
+
+```
 
 
+De acuerdo con el gráfico, los cantones que presentan mayor MAD, tienen una cantidad reducida de transacciones. Por lo que las desviaciones respecto a la Ley de Benford podrían estar relacionadas con el tamaño de la muestra y no constituyen, por sí solas, evidencia de fraude.
 
 
 
