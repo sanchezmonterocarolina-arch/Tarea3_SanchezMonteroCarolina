@@ -195,7 +195,7 @@ ggsave(
 
 ## 2. Ejercicio 2: Ley de Benford por Cantón
 
-### Gráfico de la distrubición de los primeros dígitos
+### Gráfico de la distribición de los primeros dígitos
 
 ```{r}
 #| label: fig-ej2-benford
@@ -281,7 +281,7 @@ knitr::kable(tabla1,
 ```
 
 
-De acuerdo con el gráfico, los cantones que presentan mayor MAD, tienen una cantidad reducida de transacciones. Por lo que las desviaciones respecto a la Ley de Benford podrían estar relacionadas con el tamaño de la muestra y no constituyen, por sí solas, evidencia de fraude.
+Los cantones con mayor MAD presentan pocas transacciones, por lo que las desviaciones podrían deberse al tamaño de la muestra y no necesariamente a fraude.
 
 ## 3. Ejercicio 3: Valor acumulado con interés
 
