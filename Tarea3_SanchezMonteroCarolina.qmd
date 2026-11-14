@@ -22,7 +22,7 @@ cantones <- read.csv("data/cantones.csv")
 #| echo: FALSE
 #| include: FALSE
 
-
+# ejercicio 1
 # estraemos parametros del csv "parametros_tarea3.csv"
 ventana <- parametros |>
   dplyr::filter(parametro == "ventana") |>
@@ -68,6 +68,8 @@ C <- dato.modif |>
 #| echo: FALSE
 #| include: FALSE
 
+
+# ejercicio 2
 canal.benford <- parametros$valor[
   parametros$parametro == "canal.benford"
 ]
@@ -96,12 +98,44 @@ resultado.2d <- tabla.web$canton[1]
 
 ```
 
+```{r}
+#| echo: FALSE
+#| include: FALSE
+
+# ejercicio 3
+
+tasa.anual <- as.numeric(
+  parametros$valor[
+    parametros$parametro == "tasa.anual"
+    ]
+)
+
+canal.interes <- parametros$valor[
+  parametros$parametro == "canal.interes"
+  ]
+
+
+resultado.3 <- valor.acumulado(datos, tasa.anual, canal.interes)
+
+
+resultado.3a <- resultado.3$va
+resultado.3b <- resultado.3$interes
+
+# el 3C, es con valores comunes
+
+resultado.comun <- valor.acumulado(datos, 0.06, "App")
+
+resultado.3c <- resultado.comun$va
+
+```
 
 
 
 ```{r}
 #| echo: FALSE
 
+
+# respuestas
 cat("RESULTADO_1A =", A, "\n")
 cat("RESULTADO_1B =", B, "\n")
 cat("RESULTADO_1C =", C, "\n")
@@ -109,6 +143,9 @@ cat("RESULTADO_2A =", sprintf("%.4f", resultado.2a), "\n")
 cat("RESULTADO_2B =", resultado.2b, "\n")
 cat("RESULTADO_2C =", resultado.2c, "\n")
 cat("RESULTADO_2D =", resultado.2d, "\n")
+cat("RESULTADO_3A =", sprintf("%.2f", resultado.3a), "\n")
+cat("RESULTADO_3B =", sprintf("%.2f", resultado.3b), "\n")
+cat("RESULTADO_3C =", sprintf("%.2f", resultado.3c), "\n")
 
 ```
 
@@ -245,6 +282,84 @@ knitr::kable(tabla1,
 
 
 De acuerdo con el gráfico, los cantones que presentan mayor MAD, tienen una cantidad reducida de transacciones. Por lo que las desviaciones respecto a la Ley de Benford podrían estar relacionadas con el tamaño de la muestra y no constituyen, por sí solas, evidencia de fraude.
+
+## 3. Ejercicio 3: Valor acumulado con interés
+
+### Gráfico de montos mensuales y valores acumulados
+
+```{r}
+#| label: fig-ej3-interes
+#| echo: false
+#| warning: false
+#| message: false
+
+# Utilizamos la tabla de nuestra función
+tabla.interes <- resultado.3$tabla |>
+  dplyr::mutate(
+    acumulado = monto * factor
+  )
+
+# Preparamos los datos del gráfico
+datos.grafico <- tabla.interes |>
+  dplyr::select(mes, monto, acumulado) |>
+  tidyr::pivot_longer(
+    cols = c(monto, acumulado),
+    names_to = "tipo",
+    values_to = "valor"
+  ) |>
+  dplyr::mutate(
+    tipo = dplyr::recode(
+      tipo,
+      monto = "Monto mensual",
+      acumulado = "Valor al 31-dic"
+    )
+  )
+
+# Construimos el gráfico
+grafico.interes <- ggplot(
+  datos.grafico,
+  aes(x = factor(mes), y = valor, fill = tipo)
+) +
+  geom_col(position = "dodge", width = 0.75) +
+  labs(
+    title = "Valor acumulado de los depósitos mensuales",
+    subtitle = paste("Canal:", canal.interes),
+    x = "Mes",
+    y = "Monto en colones",
+    fill = "Concepto"
+  ) +
+  scale_fill_manual(
+    values = c(
+      "Monto mensual" = "steelblue",
+      "Valor al 31-dic" = "darkorange"
+    )
+  ) +
+  theme_minimal()
+
+print(grafico.interes)
+
+# Guardamos el gráfico
+dir.create(
+  "info/figuras",
+  recursive = TRUE,
+  showWarnings = FALSE
+)
+
+ggsave(
+  filename = "info/figuras/ej3.interes.png",
+  plot = grafico.interes,
+  width = 10,
+  height = 5,
+  dpi = 300
+)
+
+
+```
+
+
+
+
+
 
 
 
