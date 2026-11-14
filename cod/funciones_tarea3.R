@@ -88,7 +88,7 @@ benford.mad <- function(x){
 
 # Función 2
 # Recive: data frame, canal, cantones
-# Devuelve: 
+# Devuelve: data frame ordenado por MAD
 
 benford.canton <- function(df, canal, cantones){
   
@@ -112,6 +112,65 @@ benford.canton <- function(df, canal, cantones){
   
   
 }
+
+
+# Ejercicio 3
+
+# Recibe: df, tasa anual y canal
+# Devuelve: una tabla que tenga mes, monto y factor y una lista con la tasa 
+# mensual, el va y los intereses
+
+
+valor.acumulado <- function(df, tasa.anual, canal){
+  
+  datos <- df |>
+    dplyr::filter(.data$canal == .env$canal) |>
+    dplyr::mutate(mes = lubridate::month(fecha)) |>
+    dplyr::group_by(mes) |>
+    dplyr::summarise(
+      monto = sum(monto_crc),
+      .groups = "drop"
+    ) |>
+    tidyr::complete(mes = 1:12, fill = list(monto = 0)) |>
+    dplyr::arrange(mes)
+  
+  tasa.mensual <- (1 + tasa.anual)^(1/12) - 1
+  
+  datos <- datos |>
+    dplyr::mutate(
+      factor = (1 + tasa.mensual)^(12 - mes)
+      )
+  
+  va <- sum(datos$monto * datos$factor)
+  
+  
+  interes <- va - sum(datos$monto)
+  
+  return(list(
+    tabla = datos,
+    tasa.mensual = tasa.mensual,
+    va = va,
+    interes = interes
+  ))
+  
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
