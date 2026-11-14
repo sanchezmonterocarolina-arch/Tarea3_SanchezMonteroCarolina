@@ -1,6 +1,8 @@
 ---
 title: "Tarea3_SanchezMonteroCarolina"
-format: html
+format:
+  html:
+    embed-resources: true
 ---
 
 ## 0. Hoja de respuestas
@@ -195,7 +197,7 @@ ggsave(
 
 ## 2. Ejercicio 2: Ley de Benford por Cantón
 
-### Gráfico de la distribición de los primeros dígitos
+### Gráfico de la distribución de los primeros dígitos
 
 ```{r}
 #| label: fig-ej2-benford
